@@ -50,8 +50,19 @@ def prepare_dataset(dataset_path):
     @return
 	X,y
     '''
-    ##         "INSERT YOUR CODE HERE"    
-    raise NotImplementedError()
+    raw_data = np.genfromtxt(dataset_path, delimiter=',',dtype=None)
+        print(raw_data)
+        X = (list(row)[2:] for row in raw_data)
+        Y = []
+        for row in raw_data:
+            if row[1] == 'M':
+                Y.extend(1)
+            else:
+                Y.extend(0)
+
+
+
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -122,12 +133,8 @@ def build_NeuralNetwork_classifier(X_training, y_training):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if __name__ == "__main__":
-    pass
-    # Write a main part that calls the different 
-    # functions to perform the required tasks and repeat your experiments.
+    prepare_dataset('medical_records.data')
 
 
-    # call your functions here
-    
 
 
