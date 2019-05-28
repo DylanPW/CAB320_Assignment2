@@ -51,17 +51,18 @@ def prepare_dataset(dataset_path):
 	X,y
     '''
     raw_data = np.genfromtxt(dataset_path, delimiter=',',dtype=None)
-    print(raw_data)
-    X = (list(row)[2:] for row in raw_data)
-    Y = []
+    X = []
+    y = []
     for row in raw_data:
+        X.extend([list(row)[2:]])
         if row[1] == b'M':
-            Y.extend([1])
+            y.extend([1])
 
         else:
-            Y.extend([0])
-    print(Y)
-
+            y.extend([0])
+    X = np.array(X)
+    y =  np.array(y)
+    return(X,y)
 
 
 
