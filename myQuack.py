@@ -11,6 +11,8 @@ You are welcome to use the pandas library if you know it.
 
 '''
 import numpy as np
+from keras.models import Sequential
+from keras.layers import Dense
 from sklearn import model_selection, metrics, neighbors, naive_bayes, svm, tree
 
 
@@ -75,13 +77,16 @@ def build_DecisionTree_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
+    # Creates Decision Tree classifier
     tree_classifier = tree.DecisionTreeClassifier()
-    params = [
-        {
-            'max_depth': np.linspace(1, 100, 100)
-        }
-    ]
+
+    # Sets the parameters for the gridsearch
+    params = [{'max_depth': np.linspace(1, 100, 100)}]
+
+    # Finds the best parameter for the classifier
     clf = model_selection.GridSearchCV(tree_classifier, params)
+
+    # train the classifier
     clf.fit(X_training, y_training)
     return clf
 
@@ -99,7 +104,8 @@ def build_NearrestNeighbours_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"    
+    ##         "INSERT YOUR CODE HERE"
+    # TODO: dylan
     raise NotImplementedError()
 
 
@@ -116,7 +122,8 @@ def build_SupportVectorMachine_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"    
+    ##         "INSERT YOUR CODE HERE"
+    # TODO: dylan
     raise NotImplementedError()
 
 
@@ -135,7 +142,8 @@ def build_NeuralNetwork_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"    
+    ##         "INSERT YOUR CODE HERE"
+
     raise NotImplementedError()
 
 
