@@ -1,4 +1,3 @@
-
 '''
 
 Scaffolding code for the Machine Learning assignment. 
@@ -12,9 +11,7 @@ You are welcome to use the pandas library if you know it.
 
 '''
 import numpy as np
-
-import sklearn
-assert sklearn.__version__ >= "0.20"
+from sklearn import model_selection, metrics, neighbors, naive_bayes, svm, tree
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -50,7 +47,7 @@ def prepare_dataset(dataset_path):
     @return
 	X,y
     '''
-    raw_data = np.genfromtxt(dataset_path, delimiter=',',dtype=None)
+    raw_data = np.genfromtxt(dataset_path, delimiter=',', dtype=None)
     X = []
     y = []
     for row in raw_data:
@@ -61,9 +58,8 @@ def prepare_dataset(dataset_path):
         else:
             y.extend([0])
     X = np.array(X)
-    y =  np.array(y)
-    return(X,y)
-
+    y = np.array(y)
+    return (X, y)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -79,8 +75,16 @@ def build_DecisionTree_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"    
-    raise NotImplementedError()
+    tree_classifier = tree.DecisionTreeClassifier()
+    params = [
+        {
+            'max_depth': np.linspace(1, 100, 100)
+        }
+    ]
+    clf = model_selection.GridSearchCV(tree_classifier, params)
+    clf.fit(X_training, y_training)
+    return clf
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -98,6 +102,7 @@ def build_NearrestNeighbours_classifier(X_training, y_training):
     ##         "INSERT YOUR CODE HERE"    
     raise NotImplementedError()
 
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def build_SupportVectorMachine_classifier(X_training, y_training):
@@ -113,6 +118,7 @@ def build_SupportVectorMachine_classifier(X_training, y_training):
     '''
     ##         "INSERT YOUR CODE HERE"    
     raise NotImplementedError()
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -132,11 +138,12 @@ def build_NeuralNetwork_classifier(X_training, y_training):
     ##         "INSERT YOUR CODE HERE"    
     raise NotImplementedError()
 
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if __name__ == "__main__":
-    prepare_dataset('medical_records.data')
-
-
-
-
+    (X_training, y_training) = prepare_dataset('medical_records.data')
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(X_training, y_training, test_size=0.33)
+    clf = build_DecisionTree_classifier(X_train, y_train)
+    y_pred = clf.predict(X_test)
+    print("Accuracy", metrics.accuracy_score(y_test, y_pred))
