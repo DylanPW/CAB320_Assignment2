@@ -13,6 +13,7 @@ You are welcome to use the pandas library if you know it.
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn import model_selection, metrics, neighbors, naive_bayes, svm, tree
 
 
@@ -78,16 +79,18 @@ def build_DecisionTree_classifier(X_training, y_training):
 	clf : the classifier built in this function
     '''
     # Creates Decision Tree classifier
-    tree_classifier = tree.DecisionTreeClassifier()
+    tree_clf = tree.DecisionTreeClassifier()
 
-    # Sets the parameters for the gridsearch
+    # Set the parameters to be compared in the grid search
     params = [{'max_depth': np.linspace(1, 100, 100)}]
 
     # Finds the best parameter for the classifier
-    clf = model_selection.GridSearchCV(tree_classifier, params)
+    clf = model_selection.GridSearchCV(tree_clf, params)
 
-    # train the classifier
+    # Train the Decision Tree Classifier
     clf.fit(X_training, y_training)
+
+    # Output the trained Decision Tree
     return clf
 
 
@@ -129,6 +132,30 @@ def build_SupportVectorMachine_classifier(X_training, y_training):
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+def neural_model(neurons):
+    '''
+    Builds the model for the neural network of which the classifier will use 
+    '''
+
+    #Creates the model
+    neural = Sequential()
+
+    #Adds Input and hidden layer 1
+    neural.add(Dense(neurons, input_dim=30, activation='relu'))
+
+    #Hidden layer 2
+    neural.add(Dense(neurons, activation='relu'))
+
+    #Output layer
+    neural.add(Dense(1, activation='sigmoid'))
+
+    #Compiles the model
+    neural.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return neural
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 def build_NeuralNetwork_classifier(X_training, y_training):
     '''  
     Build a Neural Network with two dense hidden layers classifier 
@@ -142,16 +169,35 @@ def build_NeuralNetwork_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"
 
-    raise NotImplementedError()
+    # Creates Neural Network Classifier with neural_model as a basis
+    neural_clf = KerasClassifier(build_fn=neural_model)
+
+    # Set the parameters to be compared in grid search
+    params = [{'neurons': [1, 5, 10, 20, 30]}]
+
+    # Finds the best parameter for the classifier
+    clf = model_selection.GridSearchCV(neural_clf, params)
+
+    # Train the neural network
+    clf = clf.fit(X_training, y_training)
+
+    # Output the trained network
+    return clf
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if __name__ == "__main__":
     (X_training, y_training) = prepare_dataset('medical_records.data')
+
     X_train, X_test, y_train, y_test = model_selection.train_test_split(X_training, y_training, test_size=0.33)
-    clf = build_DecisionTree_classifier(X_train, y_train)
-    y_pred = clf.predict(X_test)
-    print("Accuracy", metrics.accuracy_score(y_test, y_pred))
+
+    #clf_tree = build_DecisionTree_classifier(X_train, y_train)
+    #y_pred_tree = clf_tree.predict(X_test)
+    #print("Accuracy", metrics.accuracy_score(y_test, y_pred_tree))
+
+
+    clf_neural = build_NeuralNetwork_classifier(X_train, y_train)
+    y_pred_neural = clf_neural.predict(X_test)
+    print("Accuracy", metrics.accuracy_score(y_test, y_pred_neural))
