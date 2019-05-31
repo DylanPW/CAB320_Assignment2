@@ -84,8 +84,8 @@ def build_DecisionTree_classifier(X_training, y_training):
     # Set the parameters to be compared in the grid search
     params = [{'max_depth': np.linspace(1, 100, 100)}]
 
-    # Finds the best parameter for the classifier
-    clf = model_selection.GridSearchCV(tree_clf, params)
+    # Finds the best parameter for the classifier n_jobs = -1 to allow for multiple jobs to run at once
+    clf = model_selection.GridSearchCV(tree_clf, params, n_jobs=-1)
 
     # Train the Decision Tree Classifier
     clf.fit(X_training, y_training)
@@ -170,17 +170,17 @@ def build_NeuralNetwork_classifier(X_training, y_training):
 	clf : the classifier built in this function
     '''
 
-    # Creates Neural Network Classifier with neural_model as a basis
-    neural_clf = KerasClassifier(build_fn=neural_model)
+    # Creates Neural Network Classifier with neural_model as a basis epoch and batch size chosen experimentally
+    neural_clf = KerasClassifier(build_fn=neural_model, epochs=150, batch_size=10)
 
     # Set the parameters to be compared in grid search
-    params = [{'neurons': [1, 5, 10, 20, 30]}]
+    params = [{'neurons': [1, 2, 3, 5, 10, 15, 20, 25, 30]}]
 
-    # Finds the best parameter for the classifier
-    clf = model_selection.GridSearchCV(neural_clf, params)
+    # Finds the best parameter for the classifier n_jobs = -1 to allow for multiple jobs to run at once
+    clf = model_selection.GridSearchCV(neural_clf, params, n_jobs=-1)
 
     # Train the neural network
-    clf = clf.fit(X_training, y_training)
+    clf.fit(X_training, y_training)
 
     # Output the trained network
     return clf
