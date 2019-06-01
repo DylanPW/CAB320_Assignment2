@@ -15,6 +15,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn import model_selection, metrics, neighbors, naive_bayes, svm, tree
+from sklearn.model_selection import GridSearchCV
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -107,9 +108,25 @@ def build_NearrestNeighbours_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"
-    # TODO: dylan
-    raise NotImplementedError()
+    # Create the classifier
+
+    neighbours = 20
+    leaf_size = 50
+
+
+    classifier = neighbors.KNeighborsClassifier()
+    # Use n_neighbors and leaf_size as params
+    params = [
+        {
+            'n_neighbors': np.arange(neighbours) + 1,
+            'leaf_size': np.arange(leaf_size) + 1
+        }
+    ]
+    # Estimate the best value of the parameters using crossvalidated gridsearch
+    clf = GridSearchCV(classifier, params)
+    # Train the model using the training data
+    clf.fit(X_training, y_training)
+    return clf
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -125,9 +142,32 @@ def build_SupportVectorMachine_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"
-    # TODO: dylan
-    raise NotImplementedError()
+    c_start = -3
+    c_stop = 3
+    c_num = 7
+    gamma_start = -4
+    gamma_stop = 4
+    gamma_num = 9
+
+    classifier = svm.SVC()
+    #using C, kernel and gamma as classifier params
+    params = [
+        {
+            'C': np.logspace(c_start, c_stop, c_num),
+            'kernel': ['linear']
+        },
+        {
+            'C': np.logspace(c_start, c_stop, c_num),
+            'gamma': np.logspace(gamma_start, gamma_stop,
+                                 gamma_num),
+            'kernel': ['rbf']
+        }
+    ]
+    # estimate best value using a crossvalidated grid se
+    clf = GridSearchCV(classifier, params)
+    # train the model using provided data
+    clf.fit(X_training, y_training)
+    return clf
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -198,6 +238,14 @@ if __name__ == "__main__":
     #print("Accuracy", metrics.accuracy_score(y_test, y_pred_tree))
 
 
-    clf_neural = build_NeuralNetwork_classifier(X_train, y_train)
-    y_pred_neural = clf_neural.predict(X_test)
-    print("Accuracy", metrics.accuracy_score(y_test, y_pred_neural))
+    # clf_neural = build_NeuralNetwork_classifier(X_train, y_train)
+    #     # y_pred_neural = clf_neural.predict(X_test)
+    # print("Accuracy", metrics.accuracy_score(y_test, y_pred_neural))
+
+    # clf_svm = build_SupportVectorMachine_classifier(X_train, y_train)
+    # y_pred_svm = clf_svm.predict(X_test)
+    # print("Accuracy", metrics.accuracy_score(y_test, y_pred_svm))
+
+    clf_neighbours = build_NearrestNeighbours_classifier(X_train, y_train)
+    y_pred_neighbours = clf_neighbours.predict(X_test)
+    print("Accuracy", metrics.accuracy_score(y_test, y_pred_neighbours))
