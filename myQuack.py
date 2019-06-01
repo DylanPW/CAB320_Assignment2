@@ -62,9 +62,13 @@ def prepare_dataset(dataset_path):
     # Going through each line of data
     for row in raw_data:
 
-        # Adds onto X array the entire line
+        # Pre-allocating the line as a list
         X_row = list(row)[:]
+
+        # Removes the label
         X_row.pop(1)
+
+        # Adds onto X array the entire list
         X.append(X_row)
 
         # Checks the label of the line
@@ -259,14 +263,16 @@ if __name__ == "__main__":
     for data in X_train_ID:
         X_train.append(data[1:])
 
-    X_train = np.array(X_train)
-
     # Removing the ID and Label from the test set
     X_test = []
     for data in X_test_ID:
         X_test.append(data[1:])
 
+    # Re-setting the arrays to numpy arrays
+    X_train = np.array(X_train)
     X_test = np.array(X_test)
+
+# -------------------------------------------------------------------------------------------------
 
     # Build the Decision Tree Classifier
     clf_tree = build_DecisionTree_classifier(X_train, y_train)
@@ -297,21 +303,21 @@ if __name__ == "__main__":
     # Prints an accuracy reading of the Decision Tree
     print("Accuracy of Decision Tree", metrics.accuracy_score(y_test, y_pred_tree))
 
+# -------------------------------------------------------------------------------------------------
+
     # clf_svm = build_SupportVectorMachine_classifier(X_train, y_train)
     # y_pred_svm = clf_svm.predict(X_test)
     # print("Accuracy", metrics.accuracy_score(y_test, y_pred_svm))
+
+# -------------------------------------------------------------------------------------------------
 
     # clf_neighbours = build_NearrestNeighbours_classifier(X_train, y_train)
     # y_pred_neighbours = clf_neighbours.predict(X_test)
     # print("Accuracy", metrics.accuracy_score(y_test, y_pred_neighbours))
 
+# -------------------------------------------------------------------------------------------------
+
     # Build the Neural Network Classifier
-    print(X_train)
-    print(len(X_train[0]))
-    print(len(y_train))
-
-
-
     clf_neural = build_NeuralNetwork_classifier(X_train, y_train)
 
     # Input Data into classifier to get predictions
