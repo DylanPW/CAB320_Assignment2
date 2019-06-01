@@ -200,4 +200,7 @@ if __name__ == "__main__":
 
     clf_neural = build_NeuralNetwork_classifier(X_train, y_train)
     y_pred_neural = clf_neural.predict(X_test)
+    for input, y_pred_neural, label in zip(X_test, y_pred_neural, y_test):
+        if y_pred_neural != label:
+            print(input, 'has been classified as ', y_pred_neural, 'and should be ', label)
     print("Accuracy", metrics.accuracy_score(y_test, y_pred_neural))
