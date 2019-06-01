@@ -51,18 +51,79 @@ def prepare_dataset(dataset_path):
     @return
 	X,y
     '''
+
+    # Loading the data from the file into an array
     raw_data = np.genfromtxt(dataset_path, delimiter=',', dtype=None)
+
+    # Preparing empty arrays
     X = []
     y = []
-    for row in raw_data:
-        X.extend([list(row)[2:]])
-        if row[1] == b'M':
-            y.extend([1])
 
+    # Going through each line of data
+    for row in raw_data:
+
+        # Adds onto X array the entire line
+        X.extend([list(row)[:]])
+
+        # Checks the label of the line
+        if row[1] == b'M':
+
+            # Adds onto the line either 1 or 0
+            y.extend([1])
         else:
             y.extend([0])
+
+    # Convert to numpy arrays
     X = np.array(X)
     y = np.array(y)
+
+    # Outputs tumour data and tumour label
+    return (X, y)
+
+def prepare_dataset2(dataset_path):
+    '''
+    Read a comma separated text file where
+	- the first field is a ID number
+	- the second field is a class label 'B' or 'M'
+	- the remaining fields are real-valued
+
+    Return two numpy arrays X and y where
+	- X is two dimensional. X[i,:] is the ith example
+	- y is one dimensional. y[i] is the class label of X[i,:]
+          y[i] should be set to 1 for 'M', and 0 for 'B'
+
+    @param dataset_path: full path of the dataset text file
+
+    @return
+	X,y
+    '''
+
+    # Loading the data from the file into an array
+    raw_data = np.genfromtxt(dataset_path, delimiter=',', dtype=None)
+
+    # Preparing empty arrays
+    X = []
+    y = []
+
+    # Going through each line of data
+    for row in raw_data:
+
+        # Adds onto X array the entire line
+        X.extend([list(row)[2:]])
+
+        # Checks the label of the line
+        if row[1] == b'M':
+
+            # Adds onto the line either 1 or 0
+            y.extend([1])
+        else:
+            y.extend([0])
+
+    # Convert to numpy arrays
+    X = np.array(X)
+    y = np.array(y)
+
+    # Outputs tumour data and tumour label
     return (X, y)
 
 
@@ -177,19 +238,19 @@ def neural_model(neurons):
     Builds the model for the neural network of which the classifier will use 
     '''
 
-    #Creates the model
+    # Creates the model
     neural = Sequential()
 
-    #Adds Input and hidden layer 1
+    # Adds Input and hidden layer 1
     neural.add(Dense(neurons, input_dim=30, activation='relu'))
 
-    #Hidden layer 2
+    # Hidden layer 2
     neural.add(Dense(neurons, activation='relu'))
 
-    #Output layer
+    # Output layer
     neural.add(Dense(1, activation='sigmoid'))
 
-    #Compiles the model
+    # Compiles the model
     neural.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     return neural
 
@@ -229,30 +290,96 @@ def build_NeuralNetwork_classifier(X_training, y_training):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if __name__ == "__main__":
+
+    # Preparing Data
     (X_training, y_training) = prepare_dataset('medical_records.data')
+    (X_training2, y_training2) = prepare_dataset2('medical_records.data')
 
-    X_train, X_test, y_train, y_test = model_selection.train_test_split(X_training, y_training, test_size=0.33)
+    # Randomly split the data into a training set and a test set
+    X_train_ID, X_test_ID, y_train, y_test = model_selection.train_test_split(X_training, y_training, test_size=0.33)
 
-    #clf_tree = build_DecisionTree_classifier(X_train, y_train)
-    #y_pred_tree = clf_tree.predict(X_test)
-    #print("Accuracy", metrics.accuracy_score(y_test, y_pred_tree))
+    # Removing the ID and Label from the training set
+    # This is done as the train_test_split randomizes the way that it splits therefore if ID were removed before
+    # splitting there would be no way to link the ID with the Data
+    X_train = []
+    for data in X_train_ID:
+        X_train.extend([list(data.astype('U13'))[2:]])
 
+    #testing
+    X_train = np.array(X_train)
+    print(X_train[0])
+    print(X_training2[0])
 
-    # clf_neural = build_NeuralNetwork_classifier(X_train, y_train)
-    #     # y_pred_neural = clf_neural.predict(X_test)
-    # print("Accuracy", metrics.accuracy_score(y_test, y_pred_neural))
+    # Removing the ID and Label from the test set
+    X_test = []
+    for data in X_test_ID:
+        X_test.append(data[2:])
+
+    # Build the Decision Tree Classifier
+    clf_tree = build_DecisionTree_classifier(X_train, y_train)
+
+    # Input Data into classifier to get predictions
+    y_pred_tree = clf_tree.predict(X_test)
+
+    # Input training Data into classifier to see what was ignored when making model
+    y_pred_tree_train = clf_tree.predict(X_train)
+
+    # Print out the ID of the failed predictions and what they were suppose to be where 1 is malignant and 0 is benign
+    for input, y_pred, label in zip(X_test_ID, y_pred_tree, y_test):
+
+        # If the prediction does not match the label
+        if y_pred != label:
+            # Print ID, prediction and correct label
+            print(input[0], 'has been classified as ', y_pred, 'and should be ', label)
+
+    # Print out the ID of the ignored data and what they were
+    # suppose to be where 1 is malignant and 0 is benign
+    for input, y_pred, label in zip(X_train_ID, y_pred_tree_train, y_train):
+
+        # If the prediction does not match the label
+        if y_pred != label:
+            # Print ID, prediction and correct label
+            print('Training ID', input[0], 'has been classified as ', y_pred, 'and should be ', label)
+
+    # Prints an accuracy reading of the Decision Tree
+    print("Accuracy of Decision Tree", metrics.accuracy_score(y_test, y_pred_tree))
 
     # clf_svm = build_SupportVectorMachine_classifier(X_train, y_train)
     # y_pred_svm = clf_svm.predict(X_test)
     # print("Accuracy", metrics.accuracy_score(y_test, y_pred_svm))
 
-    clf_neighbours = build_NearrestNeighbours_classifier(X_train, y_train)
-    y_pred_neighbours = clf_neighbours.predict(X_test)
-    print("Accuracy", metrics.accuracy_score(y_test, y_pred_neighbours))
-    
+    # clf_neighbours = build_NearrestNeighbours_classifier(X_train, y_train)
+    # y_pred_neighbours = clf_neighbours.predict(X_test)
+    # print("Accuracy", metrics.accuracy_score(y_test, y_pred_neighbours))
+
+    '''
+    # Build the Neural Network Classifier
     clf_neural = build_NeuralNetwork_classifier(X_train, y_train)
+
+    # Input Data into classifier to get predictions
     y_pred_neural = clf_neural.predict(X_test)
-    for input, y_pred_neural, label in zip(X_test, y_pred_neural, y_test):
-        if y_pred_neural != label:
-            print(input, 'has been classified as ', y_pred_neural, 'and should be ', label)
-    print("Accuracy", metrics.accuracy_score(y_test, y_pred_neural))
+
+    # Input training Data into classifier to see what was ignored when making model
+    y_pred_neural_train = clf_neural.predict(X_train)
+
+    # Print out the ID of the failed predictions and what they were suppose to be where 1 is malignant and 0 is benign
+    for input, y_pred, label in zip(X_test_ID, y_pred_neural, y_test):
+
+        # If the prediction does not match the label
+        if y_pred != label:
+
+            # Print ID, prediction and correct label
+            print(input[0], 'has been classified as ', y_pred, 'and should be ', label)
+
+    # Print out the ID of the ignored data and what they were
+    # suppose to be where 1 is malignant and 0 is benign
+    for input, y_pred, label in zip(X_train_ID, y_pred_neural_train, y_train):
+
+        # If the prediction does not match the label
+        if y_pred != label:
+            # Print ID, prediction and correct label
+            print('Training ID', input[0], 'has been classified as ', y_pred, 'and should be ', label)
+
+    # Prints an accuracy reading of the neural network
+    print("Accuracy of Neural Network", metrics.accuracy_score(y_test, y_pred_neural))
+    '''
