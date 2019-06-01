@@ -63,7 +63,9 @@ def prepare_dataset(dataset_path):
     for row in raw_data:
 
         # Adds onto X array the entire line
-        X.extend([list(row)[:]])
+        X_row = list(row)[:]
+        X_row.pop(1)
+        X.append(X_row)
 
         # Checks the label of the line
         if row[1] == b'M':
@@ -76,55 +78,8 @@ def prepare_dataset(dataset_path):
     # Convert to numpy arrays
     X = np.array(X)
     y = np.array(y)
-
     # Outputs tumour data and tumour label
-    return (X, y)
-
-def prepare_dataset2(dataset_path):
-    '''
-    Read a comma separated text file where
-	- the first field is a ID number
-	- the second field is a class label 'B' or 'M'
-	- the remaining fields are real-valued
-
-    Return two numpy arrays X and y where
-	- X is two dimensional. X[i,:] is the ith example
-	- y is one dimensional. y[i] is the class label of X[i,:]
-          y[i] should be set to 1 for 'M', and 0 for 'B'
-
-    @param dataset_path: full path of the dataset text file
-
-    @return
-	X,y
-    '''
-
-    # Loading the data from the file into an array
-    raw_data = np.genfromtxt(dataset_path, delimiter=',', dtype=None)
-
-    # Preparing empty arrays
-    X = []
-    y = []
-
-    # Going through each line of data
-    for row in raw_data:
-
-        # Adds onto X array the entire line
-        X.extend([list(row)[2:]])
-
-        # Checks the label of the line
-        if row[1] == b'M':
-
-            # Adds onto the line either 1 or 0
-            y.extend([1])
-        else:
-            y.extend([0])
-
-    # Convert to numpy arrays
-    X = np.array(X)
-    y = np.array(y)
-
-    # Outputs tumour data and tumour label
-    return (X, y)
+    return (X,y)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -275,7 +230,7 @@ def build_NeuralNetwork_classifier(X_training, y_training):
     neural_clf = KerasClassifier(build_fn=neural_model, epochs=150, batch_size=10)
 
     # Set the parameters to be compared in grid search
-    params = [{'neurons': [1, 2, 3, 5, 10, 15, 20, 25, 30]}]
+    params = [{'neurons': [1, 2, 3, 5, 10, 15, 20]}]
 
     # Finds the best parameter for the classifier n_jobs = -1 to allow for multiple jobs to run at once
     clf = model_selection.GridSearchCV(neural_clf, params, n_jobs=-1)
@@ -293,27 +248,25 @@ if __name__ == "__main__":
 
     # Preparing Data
     (X_training, y_training) = prepare_dataset('medical_records.data')
-    (X_training2, y_training2) = prepare_dataset2('medical_records.data')
 
     # Randomly split the data into a training set and a test set
     X_train_ID, X_test_ID, y_train, y_test = model_selection.train_test_split(X_training, y_training, test_size=0.33)
 
-    # Removing the ID and Label from the training set
+    # Removing the ID and Label from the training set and recoding the array to remove the b'
     # This is done as the train_test_split randomizes the way that it splits therefore if ID were removed before
     # splitting there would be no way to link the ID with the Data
     X_train = []
     for data in X_train_ID:
-        X_train.extend([list(data.astype('U13'))[2:]])
+        X_train.append(data[1:])
 
-    #testing
     X_train = np.array(X_train)
-    print(X_train[0])
-    print(X_training2[0])
 
     # Removing the ID and Label from the test set
     X_test = []
     for data in X_test_ID:
-        X_test.append(data[2:])
+        X_test.append(data[1:])
+
+    X_test = np.array(X_test)
 
     # Build the Decision Tree Classifier
     clf_tree = build_DecisionTree_classifier(X_train, y_train)
@@ -352,8 +305,13 @@ if __name__ == "__main__":
     # y_pred_neighbours = clf_neighbours.predict(X_test)
     # print("Accuracy", metrics.accuracy_score(y_test, y_pred_neighbours))
 
-    '''
     # Build the Neural Network Classifier
+    print(X_train)
+    print(len(X_train[0]))
+    print(len(y_train))
+
+
+
     clf_neural = build_NeuralNetwork_classifier(X_train, y_train)
 
     # Input Data into classifier to get predictions
@@ -382,4 +340,3 @@ if __name__ == "__main__":
 
     # Prints an accuracy reading of the neural network
     print("Accuracy of Neural Network", metrics.accuracy_score(y_test, y_pred_neural))
-    '''
