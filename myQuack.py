@@ -142,9 +142,9 @@ def build_NearrestNeighbours_classifier(X_training, y_training):
             'leaf_size': np.arange(leaf_size) + 1
         }
     ]
-    # Estimate the best value of the parameters using crossvalidated gridsearch
+    # estimate best value using a crossvalidated grid search
     clf = GridSearchCV(classifier, params)
-    # Train the model using the training data
+    # train the model
     clf.fit(X_training, y_training)
     return clf
 
@@ -183,9 +183,9 @@ def build_SupportVectorMachine_classifier(X_training, y_training):
             'kernel': ['rbf']
         }
     ]
-    # estimate best value using a crossvalidated grid se
+    # estimate best value using a crossvalidated grid search
     clf = GridSearchCV(classifier, params)
-    # train the model using provided data
+    # train the model
     clf.fit(X_training, y_training)
     return clf
 
