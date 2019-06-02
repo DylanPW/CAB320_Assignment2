@@ -252,7 +252,7 @@ def print_CSV(array, csvname):
     with open(csvname, mode="w") as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for item in array:
-            csv_writer.writerow([item[0], item[1][0], item[2]])
+            csv_writer.writerow([item[0], item[1], item[2]])
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -308,24 +308,60 @@ if __name__ == "__main__":
         if y_pred != label:
             # Append ID, prediction and correct label into an array
             tree_failed_train.append([ID[0], y_pred, label])
+# -------------------------------------------------------------------------------------------------
+    # Build the support vector machine classifier
+    clf_svm = build_SupportVectorMachine_classifier(X_train, y_train)
 
-    print(tree_failed_test)
-    print(tree_failed_train)
+    # Input Data into classifier to get predictions
+    y_pred_svm = clf_svm.predict(X_test)
 
-    # Prints an accuracy reading of the Decision Tree
-    print("Accuracy of Decision Tree", metrics.accuracy_score(y_test, y_pred_tree))
+    # Input training Data into classifier to see what was ignored when making model
+    y_pred_svm_train = clf_svm.predict(X_train)
+
+    svm_failed_test = []
+    # Print out the ID of the failed predictions and what they were suppose to be where 1 is malignant and 0 is benign
+    for ID, y_pred, label in zip(X_test_ID, y_pred_svm, y_test):
+        # If the prediction does not match the label
+        if y_pred != label:
+            # Append ID, prediction and correct label into an array
+            svm_failed_test.append([ID[0], y_pred, label])
+
+    svm_failed_train = []
+    # Print out the ID of the ignored data and what they were
+    # suppose to be where 1 is malignant and 0 is benign
+    for ID, y_pred, label in zip(X_train_ID, y_pred_svm_train, y_train):
+        # If the prediction does not match the label
+        if y_pred != label:
+            # Append ID, prediction and correct label into an array
+            svm_failed_train.append([ID[0], y_pred, label])
 
 # -------------------------------------------------------------------------------------------------
+    # Build the Nearest Neighbours classifier
+    clf_neighbours = build_NearrestNeighbours_classifier(X_train, y_train)
 
-    # clf_svm = build_SupportVectorMachine_classifier(X_train, y_train)
-    # y_pred_svm = clf_svm.predict(X_test)
-    # print("Accuracy", metrics.accuracy_score(y_test, y_pred_svm))
+    # Input Data into classifier to get predictions
+    y_pred_neighbours = clf_neighbours.predict(X_test)
 
-# -------------------------------------------------------------------------------------------------
+    # Input training Data into classifier to see what was ignored when making model
+    y_pred_neighbours_train = clf_neighbours.predict(X_train)
 
-    # clf_neighbours = build_NearrestNeighbours_classifier(X_train, y_train)
-    # y_pred_neighbours = clf_neighbours.predict(X_test)
-    # print("Accuracy", metrics.accuracy_score(y_test, y_pred_neighbours))
+    neighbours_failed_test = []
+    # Print out the ID of the failed predictions and what they were suppose to be where 1 is malignant and 0 is benign
+    for ID, y_pred, label in zip(X_test_ID, y_pred_neighbours, y_test):
+        # If the prediction does not match the label
+        if y_pred != label:
+            # Append ID, prediction and correct label into an array
+            neighbours_failed_test.append([ID[0], y_pred, label])
+
+    neighbours_failed_train = []
+    # Print out the ID of the ignored data and what they were
+    # suppose to be where 1 is malignant and 0 is benign
+    for ID, y_pred, label in zip(X_train_ID, y_pred_neighbours_train, y_train):
+        # If the prediction does not match the label
+        if y_pred != label:
+            # Append ID, prediction and correct label into an array
+            neighbours_failed_train.append([ID[0], y_pred, label])
+
 
 # -------------------------------------------------------------------------------------------------
 
@@ -356,9 +392,23 @@ if __name__ == "__main__":
             # Append ID, prediction and correct label into an array
             neural_failed_train.append([ID[0], y_pred, label])
 
-    print(neural_failed_test)
-    print(neural_failed_train)
-    print_CSV(neural_failed_test, "bleh.csv")
+# -------------------------------------------------------------------------------------------------
+    # printin
+    print_CSV(neural_failed_test, "neural_results_test.csv")
+    print_CSV(neural_failed_train, "neural_results_train.csv")
+
+    print_CSV(tree_failed_test, "tree_results_test.csv")
+    print_CSV(tree_failed_train, "tree_results_train.csv")
+
+    print_CSV(svm_failed_test, "svm_results_test.csv")
+    print_CSV(svm_failed_train, "svm_results_train.csv")
+
+    print_CSV(neighbours_failed_test, "neighbours_results_test.csv")
+    print_CSV(neighbours_failed_train, "neighbours_results_train.csv")
 
     # Prints an accuracy reading of the neural network
     print("Accuracy of Neural Network", metrics.accuracy_score(y_test, y_pred_neural))
+
+    print("Accuracy of Tree", metrics.accuracy_score(y_test, y_pred_tree))
+    print("Accuracy of svm", metrics.accuracy_score(y_test, y_pred_svm))
+    print("Accuracy of neighbours", metrics.accuracy_score(y_test, y_pred_neighbours))

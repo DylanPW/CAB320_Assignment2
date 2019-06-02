@@ -1,0 +1,4 @@
+Accuracy of Neural Network 0.9574468085106383
+Accuracy of Tree 0.9414893617021277
+Accuracy of svm 0.9680851063829787
+Accuracy of neighbours 0.9414893617021277
