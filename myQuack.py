@@ -283,22 +283,25 @@ if __name__ == "__main__":
     # Input training Data into classifier to see what was ignored when making model
     y_pred_tree_train = clf_tree.predict(X_train)
 
+    tree_failed_test = []
     # Print out the ID of the failed predictions and what they were suppose to be where 1 is malignant and 0 is benign
-    for input, y_pred, label in zip(X_test_ID, y_pred_tree, y_test):
-
+    for ID, y_pred, label in zip(X_test_ID, y_pred_tree, y_test):
         # If the prediction does not match the label
         if y_pred != label:
-            # Print ID, prediction and correct label
-            print(input[0], 'has been classified as ', y_pred, 'and should be ', label)
+            # Append ID, prediction and correct label into an array
+            tree_failed_test.append([ID[0], y_pred, label])
 
+    tree_failed_train = []
     # Print out the ID of the ignored data and what they were
     # suppose to be where 1 is malignant and 0 is benign
-    for input, y_pred, label in zip(X_train_ID, y_pred_tree_train, y_train):
-
+    for ID, y_pred, label in zip(X_train_ID, y_pred_tree_train, y_train):
         # If the prediction does not match the label
         if y_pred != label:
-            # Print ID, prediction and correct label
-            print('Training ID', input[0], 'has been classified as ', y_pred, 'and should be ', label)
+            # Append ID, prediction and correct label into an array
+            tree_failed_train.append([ID[0], y_pred, label])
+
+    print(tree_failed_test)
+    print(tree_failed_train)
 
     # Prints an accuracy reading of the Decision Tree
     print("Accuracy of Decision Tree", metrics.accuracy_score(y_test, y_pred_tree))
@@ -326,23 +329,26 @@ if __name__ == "__main__":
     # Input training Data into classifier to see what was ignored when making model
     y_pred_neural_train = clf_neural.predict(X_train)
 
+    neural_failed_test = []
     # Print out the ID of the failed predictions and what they were suppose to be where 1 is malignant and 0 is benign
     for input, y_pred, label in zip(X_test_ID, y_pred_neural, y_test):
-
         # If the prediction does not match the label
         if y_pred != label:
-
-            # Print ID, prediction and correct label
-            print(input[0], 'has been classified as ', y_pred, 'and should be ', label)
+            # Append ID, prediction and correct label into an array
+            neural_failed_test.append([ID[0], y_pred, label])
 
     # Print out the ID of the ignored data and what they were
     # suppose to be where 1 is malignant and 0 is benign
-    for input, y_pred, label in zip(X_train_ID, y_pred_neural_train, y_train):
 
+    neural_failed_train = []
+    for input, y_pred, label in zip(X_train_ID, y_pred_neural_train, y_train):
         # If the prediction does not match the label
         if y_pred != label:
-            # Print ID, prediction and correct label
-            print('Training ID', input[0], 'has been classified as ', y_pred, 'and should be ', label)
+            # Append ID, prediction and correct label into an array
+            neural_failed_train.append([ID[0], y_pred, label])
+
+    print(neural_failed_test)
+    print(neural_failed_train)
 
     # Prints an accuracy reading of the neural network
     print("Accuracy of Neural Network", metrics.accuracy_score(y_test, y_pred_neural))
