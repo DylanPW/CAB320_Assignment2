@@ -16,7 +16,7 @@ from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn import model_selection, metrics, neighbors, naive_bayes, svm, tree
 from sklearn.model_selection import GridSearchCV
-
+import csv
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -246,6 +246,15 @@ def build_NeuralNetwork_classifier(X_training, y_training):
     return clf
 
 
+# Function takes a 2d array with three elements as described above and a string containing the name of the file
+# csvname must include *.csv
+def print_CSV(array, csvname):
+    with open(csvname, mode="w") as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        for item in array:
+            csv_writer.writerow([item[0], item[1][0], item[2]])
+
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if __name__ == "__main__":
@@ -349,6 +358,7 @@ if __name__ == "__main__":
 
     print(neural_failed_test)
     print(neural_failed_train)
+    print_CSV(neural_failed_test, "bleh.csv")
 
     # Prints an accuracy reading of the neural network
     print("Accuracy of Neural Network", metrics.accuracy_score(y_test, y_pred_neural))
